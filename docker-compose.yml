@@ -1,0 +1,57 @@
+name: prode-back
+
+services:
+    db:
+        image: postgres:16-alpine
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=prode_1234
+            - POSTGRES_DB=prode
+        ports:
+            - "5436:5432"
+        volumes:
+            - prode_data:/var/lib/postgresql/data
+
+    redis:
+        image: redis:7-alpine
+        ports:
+            - "6379:6379"
+
+    web:
+        build: .
+        volumes:
+            - ./src:/app
+        ports:
+            - "8000:8000"
+        env_file:
+            - ./.env
+        stdin_open: true
+        tty: true
+        depends_on:
+            - db
+            - redis
+
+    celery_worker:
+        build: .
+        command: celery -A prode worker -l info
+        volumes:
+            - ./src:/app
+        env_file:
+            - ./.env
+        depends_on:
+            - db
+            - redis
+
+    celery_beat:
+        build: .
+        command: celery -A prode beat -l info
+        volumes:
+            - ./src:/app
+        env_file:
+            - ./.env
+        depends_on:
+            - db
+            - redis
+
+volumes:
+    prode_data:

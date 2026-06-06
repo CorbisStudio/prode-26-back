@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prode-back
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: public   # SIEMPRE public, no nginx
+  tls:
+    - hosts:
+        - prode.vera-demo.site
+      secretName: prode-back-tls
+  rules:
+    - host: prode.vera-demo.site
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prode-back
+                port:
+                  number: 80

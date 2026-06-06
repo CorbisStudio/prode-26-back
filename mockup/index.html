@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prode Mundial 2026 🇦🇷</title>
+<style>
+  :root{
+    /* Colores de Argentina */
+    --celeste: #75AADB;
+    --celeste-dark: #4A90D9;
+    --celeste-deep: #2E6CB5;
+    --celeste-soft: #E8F2FB;
+    --sol: #F6B40E;
+    --sol-light: #FCD34D;
+    --white: #FFFFFF;
+    --ink: #1B2A41;
+    --muted: #6B7C93;
+    --line: #DCE8F4;
+    --green: #21A179;
+    --shadow: 0 6px 24px rgba(46,108,181,.12);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:
+      radial-gradient(1200px 400px at 50% -120px, rgba(117,170,219,.35), transparent 70%),
+      linear-gradient(180deg,#F4F9FF 0%, #EAF3FC 100%);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:480px;margin:0 auto;padding:0 16px 48px;position:relative;overflow:hidden}
+  @media(min-width:900px){ .app{max-width:1080px;padding:0 32px 64px} }
+
+  /* sol decorativo de fondo */
+  .app::before{
+    content:"";position:fixed;top:-90px;right:-90px;width:240px;height:240px;
+    background:radial-gradient(circle, rgba(246,180,14,.28), transparent 60%);
+    border-radius:50%;pointer-events:none;z-index:0;
+  }
+
+  /* ── Topbar ── */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 0 14px;position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg,#F4F9FF 70%, transparent);
+  }
+  .iconbtn{
+    width:42px;height:42px;border-radius:13px;border:none;cursor:pointer;
+    background:var(--celeste-soft);color:var(--celeste-deep);
+    font-size:20px;display:grid;place-items:center;box-shadow:var(--shadow);
+    transition:.15s;
+  }
+  .iconbtn:hover{background:#dceaf8}
+  .btn-friends{
+    border:none;cursor:pointer;font-weight:700;font-size:14px;
+    color:var(--white);padding:12px 18px;border-radius:13px;
+    background:linear-gradient(135deg,var(--celeste-dark),var(--celeste-deep));
+    box-shadow:0 8px 18px rgba(46,108,181,.35);transition:.15s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-friends:hover{transform:translateY(-1px)}
+
+  .content{position:relative;z-index:1}
+  @media(min-width:900px){
+    .content{display:grid;grid-template-columns:1fr 1.2fr;gap:32px;align-items:start}
+    .col-left{position:sticky;top:80px}
+  }
+
+  /* ── Hero / Bandera ── */
+  .hero{
+    border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+    background:linear-gradient(135deg,var(--celeste) 0%, var(--celeste-deep) 100%);
+    color:var(--white);padding:22px 20px;position:relative;margin-bottom:18px;
+  }
+  .hero .flag-stripes{
+    position:absolute;inset:0;opacity:.16;
+    background:repeating-linear-gradient(180deg,#fff 0 22px, var(--celeste) 22px 44px);
+  }
+  .hero h1{font-size:22px;line-height:1.2;position:relative;font-weight:800}
+  .hero p{position:relative;margin-top:6px;font-size:13px;opacity:.92}
+  .sun-emoji{font-size:30px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
+
+  /* ── Countdown ── */
+  .countdown-card{
+    background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:22px;
+    border:1px solid var(--line);
+  }
+  .countdown-card .label{font-size:13px;font-weight:600;color:var(--muted);flex:1}
+  .clock{display:flex;gap:8px}
+  .clock .unit{text-align:center;min-width:44px}
+  .clock .num{
+    font-size:22px;font-weight:800;color:var(--celeste-deep);
+    background:var(--celeste-soft);border-radius:11px;padding:8px 0;display:block;
+  }
+  .clock .u{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600}
+
+  /* ── Section title ── */
+  .sec-title{font-size:19px;font-weight:800;margin:6px 2px 4px;display:flex;align-items:center;gap:8px}
+  .sec-title .bar{width:5px;height:20px;border-radius:3px;background:linear-gradient(var(--celeste),var(--sol))}
+  .link{color:var(--celeste-dark);font-weight:700;font-size:13px;text-decoration:none;display:inline-block;margin:2px 2px 14px}
+
+  /* ── Premios ── */
+  .prizes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+  .prize{
+    background:var(--white);border-radius:var(--radius);padding:16px;border:1px solid var(--line);
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .prize h3{font-size:13px;color:var(--muted);font-weight:600}
+  .prize .amount{font-size:22px;font-weight:800;margin:4px 0 2px;color:var(--ink)}
+  .prize.gold .amount{color:var(--sol)}
+  .prize small{font-size:11px;color:var(--muted);line-height:1.3;display:block}
+  .prize .ico{font-size:34px;text-align:right;margin-top:6px}
+  .prize .ribbon{
+    position:absolute;top:10px;right:-26px;transform:rotate(45deg);
+    background:var(--sol);color:#5a3d00;font-size:9px;font-weight:800;
+    padding:3px 28px;letter-spacing:.5px;
+  }
+
+  /* ── Tabs ── */
+  .tabs{
+    display:flex;background:var(--white);border-radius:14px;padding:5px;
+    box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:14px;
+  }
+  .tab{
+    flex:1;text-align:center;padding:11px;border-radius:10px;font-weight:700;font-size:14px;
+    color:var(--muted);cursor:pointer;border:none;background:transparent;transition:.15s;
+  }
+  .tab.active{
+    color:var(--celeste-deep);
+    background:var(--celeste-soft);box-shadow:inset 0 0 0 1.5px var(--celeste);
+  }
+
+  .info{
+    display:flex;gap:10px;align-items:center;background:var(--celeste-soft);
+    border-radius:13px;padding:12px 14px;font-size:13px;color:var(--celeste-deep);
+    margin-bottom:18px;font-weight:500;
+  }
+  .info .i{
+    width:22px;height:22px;border-radius:50%;background:var(--celeste-dark);color:#fff;
+    display:grid;place-items:center;font-size:13px;font-weight:800;flex-shrink:0;
+  }
+
+  /* ── Match list ── */
+  .daytag{font-size:14px;font-weight:800;margin:18px 2px 10px;color:var(--ink)}
+  .match-grid{display:grid;gap:12px}
+  @media(min-width:900px){ .match-grid{grid-template-columns:1fr 1fr;gap:14px} }
+
+  .match{
+    background:var(--white);border-radius:var(--radius);padding:16px;
+    box-shadow:var(--shadow);border:1px solid var(--line);position:relative;transition:.15s;
+  }
+  .match:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(46,108,181,.18)}
+  .match .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .match .grp{font-size:12px;font-weight:800;color:var(--celeste-deep);background:var(--celeste-soft);padding:4px 10px;border-radius:8px}
+  .match .time{font-size:13px;font-weight:700;color:var(--muted)}
+
+  .row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .team{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+  .team img{width:40px;height:40px;object-fit:contain;border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);background:#fff}
+  .team .nm{font-size:12px;font-weight:600;color:var(--ink);line-height:1.2}
+  .score-box{
+    width:42px;height:46px;border:2px solid var(--line);border-radius:11px;
+    display:grid;place-items:center;font-size:18px;font-weight:800;color:var(--celeste-deep);
+    background:#fbfdff;
+  }
+  .score-box.win{border-color:var(--sol);background:#fffaf0;color:var(--sol)}
+  .vs{font-size:11px;font-weight:800;color:var(--muted)}
+  .spark{
+    position:absolute;bottom:-8px;right:-8px;width:38px;height:38px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--sol-light),var(--sol));
+    display:grid;place-items:center;font-size:16px;box-shadow:0 4px 12px rgba(246,180,14,.5);
+    border:3px solid #fff;
+  }
+  .match.done{opacity:.96}
+  .match.done .grp{background:#e8f7f1;color:var(--green)}
+
+  /* ── CTA fija ── */
+  .cta-wrap{position:sticky;bottom:14px;margin-top:24px;z-index:15}
+  .cta{
+    width:100%;border:none;cursor:pointer;font-size:16px;font-weight:800;color:#fff;
+    padding:16px;border-radius:16px;
+    background:linear-gradient(135deg,var(--celeste-dark),var(--celeste-deep));
+    box-shadow:0 10px 30px rgba(46,108,181,.45);transition:.15s;
+  }
+  .cta:hover{transform:translateY(-2px)}
+  .terms{text-align:center;font-size:11px;color:var(--muted);margin-top:10px;line-height:1.4}
+  .terms a{color:var(--celeste-dark);font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <button class="iconbtn" aria-label="Volver">‹</button>
+    <button class="btn-friends">👥 Crear torneo con amigos</button>
+  </div>
+
+  <div class="content">
+    <div class="col-left">
+
+      <div class="hero">
+        <div class="flag-stripes"></div>
+        <h1>El Mundial es tuyo <span class="sun-emoji">☀️</span></h1>
+        <p>Pronosticá los partidos, sumá puntos y subí en el ranking. ¡Participá gratis!</p>
+      </div>
+
+      <div class="countdown-card">
+        <span class="label">El torneo empieza en</span>
+        <div class="clock" id="clock">
+          <div class="unit"><span class="num" id="d">00</span><div class="u">D</div></div>
+          <div class="unit"><span class="num" id="h">00</span><div class="u">H</div></div>
+          <div class="unit"><span class="num" id="m">00</span><div class="u">M</div></div>
+          <div class="unit"><span class="num" id="s">00</span><div class="u">S</div></div>
+        </div>
+      </div>
+
+      <div class="sec-title"><span class="bar"></span>Premios</div>
+      <a href="#" class="link">Saber más →</a>
+      <div class="prizes">
+        <div class="prize">
+          <h3>Premios diarios</h3>
+          <div class="amount">$ 10.000</div>
+          <small>Para los 2.000 mejores del día.</small>
+          <div class="ico">💸</div>
+        </div>
+        <div class="prize gold">
+          <div class="ribbon">TOP</div>
+          <h3>Premio final</h3>
+          <div class="amount">US$ 50.000</div>
+          <small>Para el mejor del ranking general.</small>
+          <div class="ico">🏆</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="sec-title"><span class="bar"></span>Partidos</div>
+      <div class="tabs">
+        <button class="tab" data-tab="done">Completados</button>
+        <button class="tab active" data-tab="pending">Pendientes</button>
+      </div>
+      <div class="info">
+        <span class="i">i</span>
+        Cuantos más partidos completás, más puntos podés sumar.
+      </div>
+
+      <div id="matches"></div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="cta">Participar gratis ☀️</button>
+    <p class="terms">Al participar confirmás que aceptás los <a href="#">Términos y condiciones</a> de este evento. Sin cargo adicional.</p>
+  </div>
+
+</div>
+
+<script>
+// ── Datos reales del Mundial 2026 (extraídos del backend) ──
+const MATCHES = [
+{"group":"Group A","date":"2026-06-11","time":"19:00","home":"Mexico","home_flag":"https://crests.football-data.org/769.svg","away":"South Africa","away_flag":"https://crests.football-data.org/9396.svg"},
+{"group":"Group A","date":"2026-06-12","time":"02:00","home":"South Korea","home_flag":"https://crests.football-data.org/772.png","away":"Czechia","away_flag":"https://crests.football-data.org/798.svg"},
+{"group":"Group B","date":"2026-06-12","time":"19:00","home":"Canada","home_flag":"https://crests.football-data.org/canada.svg","away":"Bosnia-Herzegovina","away_flag":"https://crests.football-data.org/bosnia.svg"},
+{"group":"Group D","date":"2026-06-13","time":"01:00","home":"United States","home_flag":"https://crests.football-data.org/usa.svg","away":"Paraguay","away_flag":"https://crests.football-data.org/761.svg"},
+{"group":"Group B","date":"2026-06-13","time":"19:00","home":"Qatar","home_flag":"https://crests.football-data.org/8030.svg","away":"Switzerland","away_flag":"https://crests.football-data.org/788.svg"},
+{"group":"Group C","date":"2026-06-13","time":"22:00","home":"Brazil","home_flag":"https://crests.football-data.org/764.svg","away":"Morocco","away_flag":"https://crests.football-data.org/morocco.svg"},
+{"group":"Group C","date":"2026-06-14","time":"01:00","home":"Haiti","home_flag":"https://crests.football-data.org/haiti.svg","away":"Scotland","away_flag":"https://crests.football-data.org/814.svg"},
+{"group":"Group D","date":"2026-06-14","time":"04:00","home":"Australia","home_flag":"https://crests.football-data.org/779.svg","away":"Turkey","away_flag":"https://crests.football-data.org/803.svg"},
+{"group":"Group E","date":"2026-06-14","time":"17:00","home":"Germany","home_flag":"https://crests.football-data.org/759.svg","away":"Curaçao","away_flag":"https://crests.football-data.org/curacao.svg"},
+{"group":"Group F","date":"2026-06-14","time":"20:00","home":"Netherlands","home_flag":"https://crests.football-data.org/8601.svg","away":"Japan","away_flag":"https://crests.football-data.org/766.svg"},
+{"group":"Group E","date":"2026-06-14","time":"23:00","home":"Ivory Coast","home_flag":"https://crests.football-data.org/787.svg","away":"Ecuador","away_flag":"https://crests.football-data.org/791.svg"},
+{"group":"Group F","date":"2026-06-15","time":"02:00","home":"Sweden","home_flag":"https://crests.football-data.org/792.svg","away":"Tunisia","away_flag":"https://crests.football-data.org/tunisia.svg"},
+{"group":"Group H","date":"2026-06-15","time":"16:00","home":"Spain","home_flag":"https://crests.football-data.org/760.svg","away":"Cape Verde Islands","away_flag":"https://crests.football-data.org/cape_verde.svg"},
+{"group":"Group G","date":"2026-06-15","time":"19:00","home":"Belgium","home_flag":"https://crests.football-data.org/805.svg","away":"Egypt","away_flag":"https://crests.football-data.org/825.svg"},
+{"group":"Group H","date":"2026-06-15","time":"22:00","home":"Saudi Arabia","home_flag":"https://crests.football-data.org/saudi_arabia.svg","away":"Uruguay","away_flag":"https://crests.football-data.org/758.svg"},
+{"group":"Group G","date":"2026-06-16","time":"01:00","home":"Iran","home_flag":"https://crests.football-data.org/iran.svg","away":"New Zealand","away_flag":"https://crests.football-data.org/783.svg"},
+{"group":"Group I","date":"2026-06-16","time":"19:00","home":"France","home_flag":"https://crests.football-data.org/773.svg","away":"Senegal","away_flag":"https://crests.football-data.org/senegal.svg"},
+{"group":"Group I","date":"2026-06-16","time":"22:00","home":"Iraq","home_flag":"https://crests.football-data.org/iraq.svg","away":"Norway","away_flag":"https://crests.football-data.org/813.svg"}
+];
+
+// Traducciones al español
+const ES = {
+ "Mexico":"México","South Africa":"Sudáfrica","South Korea":"Rep. de Corea","Czechia":"Rep. Checa",
+ "Canada":"Canadá","Bosnia-Herzegovina":"Bosnia y Herzeg.","United States":"Estados Unidos","Paraguay":"Paraguay",
+ "Qatar":"Catar","Switzerland":"Suiza","Brazil":"Brasil","Morocco":"Marruecos","Haiti":"Haití","Scotland":"Escocia",
+ "Australia":"Australia","Turkey":"Turquía","Germany":"Alemania","Curaçao":"Curazao","Netherlands":"Países Bajos",
+ "Japan":"Japón","Ivory Coast":"Costa de Marfil","Ecuador":"Ecuador","Sweden":"Suecia","Tunisia":"Túnez",
+ "Spain":"España","Cape Verde Islands":"Cabo Verde","Belgium":"Bélgica","Egypt":"Egipto","Saudi Arabia":"Arabia Saudita",
+ "Uruguay":"Uruguay","Iran":"Irán","New Zealand":"Nueva Zelanda","France":"Francia","Senegal":"Senegal","Iraq":"Irak","Norway":"Noruega"
+};
+const grpES = g => g.replace("Group","Grupo");
+const tEam = n => ES[n] || n;
+const MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function fechaLarga(iso){ const [y,m,d]=iso.split("-").map(Number); return `${d} de ${["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][m-1]}`; }
+
+// ── Render de partidos agrupados por día ──
+function render(){
+  const cont = document.getElementById("matches");
+  cont.innerHTML = "";
+  let lastDay = null, grid = null;
+  MATCHES.forEach((mt,i)=>{
+    if(mt.date !== lastDay){
+      lastDay = mt.date;
+      const h = document.createElement("div");
+      h.className = "daytag";
+      h.textContent = fechaLarga(mt.date);
+      cont.appendChild(h);
+      grid = document.createElement("div");
+      grid.className = "match-grid";
+      cont.appendChild(grid);
+    }
+    const spark = (i%5===2) ? '<div class="spark">✨</div>' : '';
+    const el = document.createElement("div");
+    el.className = "match";
+    el.innerHTML = `
+      <div class="top">
+        <span class="grp">${grpES(mt.group)}</span>
+        <span class="time">${mt.time} hs</span>
+      </div>
+      <div class="row">
+        <div class="team">
+          <img src="${mt.home_flag}" alt="${mt.home}" onerror="this.style.visibility='hidden'">
+          <span class="nm">${tEam(mt.home)}</span>
+        </div>
+        <div class="score-box">-</div>
+        <span class="vs">VS</span>
+        <div class="score-box">-</div>
+        <div class="team">
+          <img src="${mt.away_flag}" alt="${mt.away}" onerror="this.style.visibility='hidden'">
+          <span class="nm">${tEam(mt.away)}</span>
+        </div>
+      </div>
+      ${spark}`;
+    grid.appendChild(el);
+  });
+}
+render();
+
+// ── Tabs ──
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+  };
+});
+
+// ── Countdown al inicio del Mundial (11/06/2026 19:00 UTC) ──
+const TARGET = new Date("2026-06-11T19:00:00Z").getTime();
+function tick(){
+  const diff = TARGET - Date.now();
+  const d = Math.max(0,Math.floor(diff/86400000));
+  const h = Math.max(0,Math.floor(diff/3600000)%24);
+  const m = Math.max(0,Math.floor(diff/60000)%60);
+  const s = Math.max(0,Math.floor(diff/1000)%60);
+  const z = n => String(n).padStart(2,"0");
+  document.getElementById("d").textContent=z(d);
+  document.getElementById("h").textContent=z(h);
+  document.getElementById("m").textContent=z(m);
+  document.getElementById("s").textContent=z(s);
+}
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>

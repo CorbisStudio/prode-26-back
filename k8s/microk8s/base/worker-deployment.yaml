@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prode-back-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prode-back-worker
+  template:
+    metadata:
+      labels:
+        app: prode-back-worker
+    spec:
+      containers:
+        - name: worker
+          image: localhost:32000/prode-back:prod
+          imagePullPolicy: Always
+          command: ["celery", "-A", "prode", "worker", "-l", "info", "--concurrency=2"]
+          envFrom:
+            - configMapRef:
+                name: prode-back-config
+            - secretRef:
+                name: prode-back-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "640Mi"
+              cpu: "500m"

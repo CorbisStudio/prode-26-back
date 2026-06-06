@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+!.env.example
+*.log
+media/
+static/
+.DS_Store
+
+# Celery / static artefactos
+celerybeat-schedule*
+src/celerybeat-schedule*
+staticfiles/

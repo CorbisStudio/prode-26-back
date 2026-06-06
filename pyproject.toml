@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "prode-back"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+setuptools = ">=65.0,<70.4"
+Django = "^4.2"
+gunicorn = "^20.1.0"
+djangorestframework = "^3.14.0"
+djangorestframework-simplejwt = "^5.3.1"
+psycopg2-binary = "^2.9.6"
+drf-yasg = "^1.21.5"
+django-cors-headers = "^4.0.0"
+whitenoise = "^6.7.0"
+celery = "^5.3.6"
+redis = "^5.0.1"
+requests = "^2.31.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

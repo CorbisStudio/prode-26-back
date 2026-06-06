@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prode-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prode-back
+  template:
+    metadata:
+      labels:
+        app: prode-back
+    spec:
+      containers:
+        - name: prode-back
+          image: localhost:32000/prode-back:prod
+          imagePullPolicy: Always   # OBLIGATORIO — MicroK8s cachea imágenes independientemente de Docker
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: prode-back-config
+            - secretRef:
+                name: prode-back-secret
+          volumeMounts:
+            - name: static-files
+              mountPath: /app/staticfiles
+          resources:
+            requests:
+              memory: "192Mi"
+              cpu: "150m"
+            limits:
+              memory: "512Mi"
+              cpu: "600m"
+      volumes:
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: prode-back-static-pvc

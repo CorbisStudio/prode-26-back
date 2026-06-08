@@ -123,12 +123,12 @@ def _serialize_ranking(users):
 
 def global_ranking():
     """Ranking de todos los usuarios."""
-    users = _ranking_queryset(User.objects.filter(is_staff=False))
+    users = _ranking_queryset(User.objects.filter(is_staff=False, is_active=True))
     return _serialize_ranking(users)
 
 
 def league_ranking(league):
     """Ranking restringido a los miembros de una liga."""
     member_ids = league.memberships.values_list('user_id', flat=True)
-    users = _ranking_queryset(User.objects.filter(id__in=member_ids, is_staff=False))
+    users = _ranking_queryset(User.objects.filter(id__in=member_ids, is_staff=False, is_active=True))
     return _serialize_ranking(users)

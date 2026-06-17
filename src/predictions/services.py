@@ -101,6 +101,8 @@ def _ranking_queryset(user_qs):
             total_points=Coalesce(Sum('predictions__points'), 0),
             exact_hits=Count('predictions', filter=Q(predictions__is_exact=True)),
         )
+        # prefetch para no hacer una query de grupos por cada usuario (N+1)
+        .prefetch_related('groups')
         .order_by('-total_points', '-exact_hits', 'id')
     )
 
@@ -117,18 +119,25 @@ def _serialize_ranking(users):
             'profile_picture_url': profile.profile_picture_url if profile else None,
             'total_points': user.total_points or 0,
             'exact_hits': user.exact_hits or 0,
+            'groups': [g.name for g in user.groups.all()],
         })
     return rows
 
 
 def global_ranking():
     """Ranking de todos los usuarios."""
-    users = _ranking_queryset(User.objects.filter(is_staff=False, is_active=True))
+    users = _ranking_queryset(
+        User.objects.filter(is_staff=False, is_active=True, profile__is_participant=True)
+    )
     return _serialize_ranking(users)
 
 
 def league_ranking(league):
     """Ranking restringido a los miembros de una liga."""
     member_ids = league.memberships.values_list('user_id', flat=True)
-    users = _ranking_queryset(User.objects.filter(id__in=member_ids, is_staff=False, is_active=True))
+    users = _ranking_queryset(
+        User.objects.filter(
+            id__in=member_ids, is_staff=False, is_active=True, profile__is_participant=True
+        )
+    )
     return _serialize_ranking(users)

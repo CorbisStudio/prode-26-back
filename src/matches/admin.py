@@ -16,6 +16,9 @@ class MatchAdmin(admin.ModelAdmin):
         'id', 'utc_date', 'stage', 'group',
         'home_team', 'home_score', 'away_score', 'away_team', 'status',
     )
+    list_display_links = ('id', 'home_team')
+    # Cargar/editar el resultado desde la lista; al guardar dispara el scoring.
+    list_editable = ('home_score', 'away_score', 'status')
     list_filter = ('status', 'stage', 'group')
     search_fields = ('home_team__name', 'away_team__name')
     date_hierarchy = 'utc_date'

@@ -15,6 +15,10 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'update-match-results-nightly': {
         'task': 'matches.tasks.update_match_results',
-        'schedule': crontab(hour=2, minute=0),  # 02:00 (antes del apagado de mark1 a las 03:00)
+        'schedule': crontab(hour=2, minute=0),  # 02:00 AM
+    },
+    'update-match-results-morning': {
+        'task': 'matches.tasks.update_match_results',
+        'schedule': crontab(hour=8, minute=10),  # 08:10 AM (después del levantado del servidor)
     },
 }

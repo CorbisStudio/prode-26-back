@@ -8,7 +8,12 @@ from rest_framework_simplejwt.views import (
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from .views import CustomTokenObtainPairView, ProfileView
+from .views import (
+    CustomTokenObtainPairView,
+    ProfileView,
+    RegisterView,
+    ActivateView,
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -33,6 +38,12 @@ urlpatterns = [
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    # ── Auto-registro con activación por código ─────────────────────────────────
+    # POST /api/register/  → { first_name, email, password } → 201 (manda código por mail)
+    # POST /api/activate/  → { email, code } → activa la cuenta → { access, refresh, user }
+    path('register/', RegisterView.as_view(), name='register'),
+    path('activate/', ActivateView.as_view(), name='activate'),
 
     # ── Usuario autenticado ────────────────────────────────────────────────────
     # GET  /api/profile/  → datos del usuario logueado

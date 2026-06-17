@@ -20,3 +20,13 @@ data:
   # football-data.org
   FOOTBALL_DATA_BASE_URL: "https://api.football-data.org/v4/"
   WORLD_CUP_COMPETITION_CODE: "WC"
+  # Email (SMTP) — la password va en el secret prode-back-secret (EMAIL_HOST_PASSWORD)
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  EMAIL_HOST: "smtp.gmail.com"
+  EMAIL_PORT: "587"
+  EMAIL_USE_TLS: "True"
+  EMAIL_HOST_USER: "prode.corbis@gmail.com"
+  DEFAULT_FROM_EMAIL: "Prode Mundial <prode.corbis@gmail.com>"
+  # Activación de cuenta por código
+  ACTIVATION_CODE_TTL_MINUTES: "15"
+  ACTIVATION_MAX_ATTEMPTS: "5"

@@ -7,7 +7,7 @@ set -euo pipefail
 ENV="${1:-prod}"
 IMAGEN="localhost:32000/prode-back"
 NAMESPACE="prode-prod"
-BRANCH="${2:-develop}"
+BRANCH="${2:-master}"
 
 echo "==> Deploy prode-back → $ENV (rama $BRANCH)"
 

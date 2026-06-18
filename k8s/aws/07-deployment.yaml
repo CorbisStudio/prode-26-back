@@ -4,6 +4,8 @@ metadata:
   name: prode-back
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       role: prode-back

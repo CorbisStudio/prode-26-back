@@ -30,6 +30,8 @@ spec:
                 secretKeyRef:
                   name: prode-back-secret
                   key: DB_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/postgresql/data

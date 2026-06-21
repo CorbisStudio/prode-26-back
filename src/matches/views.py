@@ -35,13 +35,28 @@ class MatchDetailView(RetrieveAPIView):
 
 
 class UpdateMatchResultsView(APIView):
-    """GET /api/matches/update/ → dispara actualización de resultados desde la API externa."""
+    """
+    GET /api/matches/update/?token=<FOOTBALL_DATA_TOKEN>
+    Endpoint de emergencia para disparar la actualización sin el cron.
+    El token es opcional: si no se pasa usa el configurado en settings.
+    """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         try:
-            from .tasks import update_match_results
-            result = update_match_results()
-            return Response({'status': 'ok', 'result': result})
+            from .services import FootballDataClient, update_results
+            from predictions.services import score_finished_matches
+
+            token = request.query_params.get('token')
+            client = FootballDataClient(token=token) if token else FootballDataClient()
+
+            updated, finished_ids = update_results(client=client)
+            scored = score_finished_matches(finished_ids) if finished_ids else 0
+
+            return Response({'status': 'ok', 'result': {
+                'updated': updated,
+                'finished': len(finished_ids),
+                'scored': scored,
+            }})
         except Exception as exc:
             return Response({'status': 'error', 'detail': str(exc)}, status=500)

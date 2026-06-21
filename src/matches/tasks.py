@@ -8,8 +8,8 @@ from .services import update_results, FootballDataError
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=300)
-def update_match_results(self):
+# @shared_task(bind=True, max_retries=3, default_retry_delay=300)
+def update_match_results(self=None):
     """
     Tarea nocturna (Celery Beat):
       1. Actualiza los resultados de los partidos que ya se jugaron.
@@ -33,5 +33,6 @@ def update_match_results(self):
         return {'updated': updated, 'finished': len(finished_ids), 'scored': scored}
     except (FootballDataError, RequestException) as exc:
         # Incluye ConnectionError / Timeout / Connection reset → reintenta a los 5 min.
-        logger.warning('update_match_results: fallo (%s), reintentando…', exc)
-        raise self.retry(exc=exc)
+        # logger.warning('update_match_results: fallo (%s), reintentando…', exc)
+        # raise self.retry(exc=exc)
+        logger.error('update_match_results: fallo (%s)', exc)

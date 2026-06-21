@@ -9,7 +9,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
-ALLOWED_HOSTS = "*"
+ALLOWED_HOSTS = ['*']
 
 # Detrás del Cloudflare Tunnel / ingress, la TLS termina afuera y a Django le
 # llega HTTP con el header X-Forwarded-Proto. Esto hace que request.is_secure()

@@ -1,5 +1,7 @@
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Match
 from .serializers import MatchSerializer
@@ -30,3 +32,16 @@ class MatchDetailView(RetrieveAPIView):
     serializer_class = MatchSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Match.objects.select_related('home_team', 'away_team').all()
+
+
+class UpdateMatchResultsView(APIView):
+    """GET /api/matches/update/ → dispara actualización de resultados desde la API externa."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        try:
+            from .tasks import update_match_results
+            result = update_match_results()
+            return Response({'status': 'ok', 'result': result})
+        except Exception as exc:
+            return Response({'status': 'error', 'detail': str(exc)}, status=500)

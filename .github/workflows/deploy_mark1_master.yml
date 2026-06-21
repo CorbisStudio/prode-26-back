@@ -1,0 +1,144 @@
+name: Deploy Mark1 (master)
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: "Forzar migrate tras el rollout"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: deploy-mark1-master
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+    env:
+      NS: prode-prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide if migrations should run
+        id: migrate
+        shell: bash
+        run: |
+          set -euo pipefail
+          run=false
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ inputs.run_migrations }}" == "true" ]]; then
+              run=true
+            fi
+          else
+            before="${{ github.event.before }}"
+            after="${{ github.sha }}"
+            if [[ -z "$before" || "$before" == "0000000000000000000000000000000000000000" ]]; then
+              run=true
+            elif git diff --name-only "$before" "$after" -- '**/migrations/*.py' | grep -q .; then
+              run=true
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "Will run migrations after rollout: $run"
+
+      - name: Build image and rollout on mark1
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_TAG="master-${GITHUB_SHA::7}"
+          IMAGE="localhost:32000/prode-back:${IMAGE_TAG}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+
+          microk8s enable registry >/dev/null 2>&1 || true
+
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
+
+          # Aplica manifests (resetea imagen a la del repo) y luego fija el tag inmutable
+          microk8s kubectl apply -k k8s/microk8s/base/
+
+          microk8s kubectl -n "$NS" set image deployment/prode-back        prode-back="${IMAGE}"
+          microk8s kubectl -n "$NS" set image deployment/prode-back-worker  worker="${IMAGE}"
+          microk8s kubectl -n "$NS" set image deployment/prode-back-beat    beat="${IMAGE}"
+
+          microk8s kubectl -n "$NS" rollout restart deployment/prode-back deployment/prode-back-worker deployment/prode-back-beat
+
+          microk8s kubectl -n "$NS" rollout status deployment/prode-back --timeout=300s || {
+            echo "::error::Rollout timed out or failed"
+            echo "=== Deployment ===";  microk8s kubectl -n "$NS" describe deploy prode-back || true
+            echo "=== Pods ===";        microk8s kubectl -n "$NS" get pods -l app=prode-back -o wide || true
+            NEW_POD=$(microk8s kubectl -n "$NS" get pods -l app=prode-back --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || true)
+            if [[ -n "${NEW_POD:-}" ]]; then
+              echo "=== Logs ${NEW_POD} ==="; microk8s kubectl -n "$NS" logs "${NEW_POD}" --tail=200 || true
+            fi
+            echo "=== Events ==="; microk8s kubectl -n "$NS" get events --sort-by=.lastTimestamp | tail -80 || true
+            exit 1
+          }
+          microk8s kubectl -n "$NS" get pods -o wide
+
+      - name: Delete previous migration job (if exists)
+        if: steps.migrate.outputs.run == 'true'
+        shell: bash
+        run: |
+          microk8s kubectl -n "$NS" delete job prode-back-migrate --ignore-not-found=true
+
+      - name: Run migration job
+        if: steps.migrate.outputs.run == 'true'
+        id: migration_job
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat <<EOF | microk8s kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: prode-back-migrate
+            namespace: ${NS}
+          spec:
+            backoffLimit: 0
+            ttlSecondsAfterFinished: 3600
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                  - name: migrate
+                    image: ${IMAGE}
+                    command: ["python", "manage.py", "migrate", "--noinput"]
+                    envFrom:
+                      - configMapRef:
+                          name: prode-back-config
+                      - secretRef:
+                          name: prode-back-secret
+          EOF
+          echo "created=true" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for migration job to complete
+        if: steps.migrate.outputs.run == 'true' && steps.migration_job.outputs.created == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Waiting for migration job to complete (timeout 5m)..."
+          microk8s kubectl -n "$NS" wait --for=condition=complete --timeout=300s job/prode-back-migrate || {
+            echo "::error::Migration job did not complete successfully"
+            microk8s kubectl -n "$NS" describe job prode-back-migrate || true
+            microk8s kubectl -n "$NS" logs job/prode-back-migrate || true
+            exit 1
+          }
+
+      - name: Show migration logs
+        if: always() && steps.migrate.outputs.run == 'true' && steps.migration_job.outputs.created == 'true'
+        shell: bash
+        run: |
+          echo "=== Migration Logs ==="
+          microk8s kubectl -n "$NS" logs job/prode-back-migrate || echo "No logs available"

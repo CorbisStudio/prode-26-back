@@ -127,6 +127,23 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# Activación de cuenta por código (OTP) que viaja en el email de registro.
+ACTIVATION_CODE_TTL_MINUTES = int(os.getenv('ACTIVATION_CODE_TTL_MINUTES', '15'))
+ACTIVATION_MAX_ATTEMPTS = int(os.getenv('ACTIVATION_MAX_ATTEMPTS', '5'))
+
+# ── Email (SMTP) ───────────────────────────────────────────────────────────────
+# Mismo mecanismo que PAC (Django send_mail), pero con SMTP de Gmail para pruebas.
+# En local se puede setear EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+# para imprimir el mail (con el link de activación) en los logs sin enviar nada.
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'copiiworld@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Prode Mundial <copiiworld@gmail.com>')
+
 # ── Auth backend (login por email o username) ──────────────────────────────────
 AUTHENTICATION_BACKENDS = [
     'core.login_backend.EmailBackend',

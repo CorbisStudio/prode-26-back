@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prode-back
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      role: prode-back
+  template:
+    metadata:
+      labels:
+        role: prode-back
+    spec:
+      containers:
+        - name: prode-back
+          image: 714022400124.dkr.ecr.us-west-2.amazonaws.com/prode-back:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: prode-back-config
+            - secretRef:
+                name: prode-back-secret
+          volumeMounts:
+            - name: static-files
+              mountPath: /app/staticfiles
+          resources:
+            requests:
+              memory: "192Mi"
+              cpu: "150m"
+            limits:
+              memory: "512Mi"
+              cpu: "600m"
+      volumes:
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: prode-back-static-pvc

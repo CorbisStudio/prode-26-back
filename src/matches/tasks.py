@@ -1,6 +1,7 @@
 import logging
 
 from celery import shared_task
+from requests.exceptions import RequestException
 
 from .services import update_results, FootballDataError
 
@@ -13,7 +14,8 @@ def update_match_results(self):
     Tarea nocturna (Celery Beat):
       1. Actualiza los resultados de los partidos que ya se jugaron.
       2. Puntúa las predicciones de los partidos recién terminados (ranking al día).
-    Reintenta hasta 3 veces si falla la API.
+    Reintenta hasta 3 veces ante errores de la API o de red (timeout, conexión
+    reseteada, etc.), así un corte puntual no pierde la corrida nocturna.
     """
     try:
         updated, finished_ids = update_results()
@@ -29,6 +31,7 @@ def update_match_results(self):
             updated, scored,
         )
         return {'updated': updated, 'finished': len(finished_ids), 'scored': scored}
-    except FootballDataError as exc:
-        logger.error('update_match_results error de API: %s', exc)
+    except (FootballDataError, RequestException) as exc:
+        # Incluye ConnectionError / Timeout / Connection reset → reintenta a los 5 min.
+        logger.warning('update_match_results: fallo (%s), reintentando…', exc)
         raise self.retry(exc=exc)

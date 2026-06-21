@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prode-back-config
+data:
+  DEBUG: "False"
+  ALLOWED_HOSTS: "prode-api.ereborcloud.com,localhost"
+  STATIC_URL: "/static/"
+  CSRF_TRUSTED_ORIGINS: "https://prode-api.ereborcloud.com"
+  DB_NAME: "prode"
+  DB_USERNAME: "postgres"
+  DB_HOST: "prode-back-db"
+  DB_PORT: "5432"
+  POSTGRES_DB: "prode"
+  POSTGRES_USER: "postgres"
+  CELERY_BROKER_URL: "redis://prode-back-redis:6379/0"
+  CELERY_RESULT_BACKEND: "redis://prode-back-redis:6379/0"
+  FOOTBALL_DATA_BASE_URL: "https://api.football-data.org/v4/"
+  WORLD_CUP_COMPETITION_CODE: "WC"

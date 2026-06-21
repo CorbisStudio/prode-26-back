@@ -112,6 +112,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
 
+class HelloWorldView(APIView):
+    """
+    Retorna un saludo simple.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({'message': 'HOLA MUNDO'}, status=status.HTTP_200_OK)
+
+
 class ProfileView(APIView):
     """
     Devuelve los datos del usuario autenticado.

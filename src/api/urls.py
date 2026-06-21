@@ -10,6 +10,7 @@ from drf_yasg import openapi
 
 from .views import (
     CustomTokenObtainPairView,
+    HelloWorldView,
     ProfileView,
     RegisterView,
     ActivateView,
@@ -46,7 +47,9 @@ urlpatterns = [
     path('activate/', ActivateView.as_view(), name='activate'),
 
     # ── Usuario autenticado ────────────────────────────────────────────────────
+    # GET  /api/  → HOLA MUNDO
     # GET  /api/profile/  → datos del usuario logueado
+    path('', HelloWorldView.as_view(), name='hello_world'),
     path('profile/', ProfileView.as_view(), name='profile'),
 
     # ── Mundial: partidos ───────────────────────────────────────────────────────

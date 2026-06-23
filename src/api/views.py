@@ -23,7 +23,7 @@ from core.tasks import send_activation_email
 User = get_user_model()
 
 # Grupo al que se suma a todo usuario auto-registrado al activar su cuenta.
-EXTERNAL_GROUP_NAME = 'EXTERNAL'
+REGISTRATION_GROUP_NAME = 'CLIENT'
 
 
 def _gen_activation_code():
@@ -256,7 +256,7 @@ class ActivateView(APIView):
     POST /api/activate/  { email, code }
 
     Verifica el código (no vencido, intentos disponibles, coincide), pone
-    `is_active=True`, suma al usuario al grupo EXTERNAL y lo marca como
+    `is_active=True`, suma al usuario al grupo CLIENT y lo marca como
     participante. Devuelve los tokens definitivos (access + refresh).
     """
     permission_classes = [AllowAny]
@@ -317,7 +317,7 @@ class ActivateView(APIView):
             user.is_active = True
             user.save(update_fields=['is_active'])
 
-            group, _ = Group.objects.get_or_create(name=EXTERNAL_GROUP_NAME)
+            group, _ = Group.objects.get_or_create(name=REGISTRATION_GROUP_NAME)
             user.groups.add(group)
 
             profile.is_participant = True

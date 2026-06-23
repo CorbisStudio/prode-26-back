@@ -56,6 +56,7 @@ def _serialize_user(user):
         'last_name': user.last_name,
         'is_staff': user.is_staff,
         'profile_picture_url': profile.profile_picture_url if profile else None,
+        'groups': list(user.groups.values_list('name', flat=True)),
     }
 
 
@@ -143,6 +144,7 @@ class ProfileView(APIView):
                         'last_name':           openapi.Schema(type=openapi.TYPE_STRING),
                         'is_staff':            openapi.Schema(type=openapi.TYPE_BOOLEAN),
                         'profile_picture_url': openapi.Schema(type=openapi.TYPE_STRING),
+                        'groups':              openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(type=openapi.TYPE_STRING)),
                     },
                 ),
             ),

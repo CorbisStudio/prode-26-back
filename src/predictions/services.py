@@ -93,14 +93,29 @@ def score_finished_matches(match_ids=None):
 
 # ── Rankings ─────────────────────────────────────────────────────────────────────
 
-def _ranking_queryset(user_qs):
-    """Anota puntos totales y aciertos exactos (desempate) sobre un queryset de users."""
+# Fases de eliminatoria = todas las que tienen multiplicador salvo la fase de grupos.
+ELIMINATORIA_STAGES = [s for s in settings.PRODE_STAGE_MULTIPLIERS if s != 'GROUP_STAGE']
+
+# Grupos que aparecen en el ranking de eliminatoria.
+ELIMINATORIA_GROUPS = ['CLIENT', 'MANAGER']
+
+
+def _ranking_queryset(user_qs, stages=None):
+    """Anota puntos totales y aciertos exactos (desempate) sobre un queryset de users.
+
+    Si se pasan `stages`, sólo cuenta predicciones de partidos en esas fases
+    (p. ej. la eliminatoria); si no, cuenta todas.
+    """
+    if stages is not None:
+        stage_q = Q(predictions__match__stage__in=stages)
+        total = Sum('predictions__points', filter=stage_q)
+        exact = Count('predictions', filter=Q(predictions__is_exact=True) & stage_q)
+    else:
+        total = Sum('predictions__points')
+        exact = Count('predictions', filter=Q(predictions__is_exact=True))
     return (
         user_qs
-        .annotate(
-            total_points=Coalesce(Sum('predictions__points'), 0),
-            exact_hits=Count('predictions', filter=Q(predictions__is_exact=True)),
-        )
+        .annotate(total_points=Coalesce(total, 0), exact_hits=exact)
         # prefetch para no hacer una query de grupos por cada usuario (N+1)
         .prefetch_related('groups')
         .order_by('-total_points', '-exact_hits', 'id')
@@ -124,10 +139,28 @@ def _serialize_ranking(users):
     return rows
 
 
-def global_ranking():
-    """Ranking de todos los usuarios."""
+def global_ranking(stages=None):
+    """Ranking de todos los usuarios. Si se pasan `stages`, sólo suma esas fases."""
     users = _ranking_queryset(
-        User.objects.filter(is_staff=False, is_active=True, profile__is_participant=True)
+        User.objects.filter(is_staff=False, is_active=True, profile__is_participant=True),
+        stages=stages,
+    )
+    return _serialize_ranking(users)
+
+
+def eliminatoria_ranking():
+    """Ranking por puntos de eliminatoria, restringido a los usuarios de los
+    grupos CLIENT y MANAGER."""
+    # Subquery por id (no un join a grupos) para no inflar las sumas de puntos.
+    member_ids = User.objects.filter(
+        groups__name__in=ELIMINATORIA_GROUPS
+    ).values_list('id', flat=True)
+    users = _ranking_queryset(
+        User.objects.filter(
+            id__in=member_ids, is_staff=False, is_active=True,
+            profile__is_participant=True,
+        ),
+        stages=ELIMINATORIA_STAGES,
     )
     return _serialize_ranking(users)
 

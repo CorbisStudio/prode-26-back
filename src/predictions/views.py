@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from .models import Prediction, League, LeagueMembership
 from .serializers import PredictionSerializer, LeagueSerializer
-from .services import global_ranking, league_ranking
+from .services import global_ranking, league_ranking, eliminatoria_ranking
 
 
 class PredictionListCreateView(ListCreateAPIView):
@@ -42,6 +42,14 @@ class GlobalRankingView(APIView):
 
     def get(self, request):
         return Response(global_ranking())
+
+
+class EliminatoriaRankingView(APIView):
+    """GET /api/ranking/eliminatoria/ → ranking contando sólo puntos de eliminatoria."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(eliminatoria_ranking())
 
 
 class LeagueListCreateView(ListCreateAPIView):

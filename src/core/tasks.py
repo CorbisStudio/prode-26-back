@@ -28,7 +28,8 @@ def send_activation_email(self, user_id, code):
 
     try:
         EmailProde(
-            subject='Tu código de activación · Prode Mundial',
+            # subject='Tu código de activación · Prode Mundial',
+            subject='Your activation code · Prediction Game Mundial',
             recipient_list=[user.email],
             context={
                 'first_name': user.first_name or user.username,

@@ -1,23 +1,28 @@
 {% extends 'email/base.html' %}
 
-{% block title %}Activá tu cuenta · Prode Mundial{% endblock %}
+{# {% block title %}Activá tu cuenta · Prode Mundial{% endblock %} #}
+{% block title %}Activate your account · Prediction Game Mundial{% endblock %}
 
 {% block content %}
   <div style="font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:36px; line-height:1.25; font-weight:900; color:#1A2744; letter-spacing:-0.9px;">
-    Bienvenido al Prode<br>de los Corbisters
+    {# Bienvenido al Prode<br>de los Corbisters #}
+    Welcome to the<br>Corbisters' Prediction Game
   </div>
 
   <p style="margin:14px 0 0; font-size:15px; line-height:23px; color:#6B7280;">
-    Hola <strong style="color:#1A2744;">{{ first_name }}</strong>, estás a un paso de entrar.
-    Ingresá este código en la app para activar tu cuenta y empezar a cargar tus pronósticos del Mundial.
+    {# Hola <strong style="color:#1A2744;">{{ first_name }}</strong>, estás a un paso de entrar.
+    Ingresá este código en la app para activar tu cuenta y empezar a cargar tus pronósticos del Mundial. #}
+    Hi <strong style="color:#1A2744;">{{ first_name }}</strong>, you're one step away from getting in.
+    Enter this code in the app to activate your account and start submitting your World Cup predictions.
   </p>
 
-  <!-- Caja con el código -->
+  {# Caja con el código / Code box #}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
     <tr>
       <td align="center" style="background-color:#F5F7FA; border:1px solid #E5E7EB; border-radius:16px; padding:22px 16px;">
         <div style="font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#9aa1ad;">
-          Tu código de activación
+          {# Tu código de activación #}
+          Your activation code
         </div>
         <div style="margin-top:10px; font-family:'Courier New',Courier,monospace; font-size:38px; font-weight:800; letter-spacing:10px; color:#1A2744;">
           {{ code }}
@@ -27,6 +32,7 @@
   </table>
 
   <p style="margin:16px 0 0; font-size:13px; line-height:20px; color:#9aa1ad;">
-    Vence en 15 minutos. Si se te vence, pedí uno nuevo desde la app.
+    {# Vence en 15 minutos. Si se te vence, pedí uno nuevo desde la app. #}
+    Expires in 15 minutes. If it expires, request a new one from the app.
   </p>
 {% endblock %}

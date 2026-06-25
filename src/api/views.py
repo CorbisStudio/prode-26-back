@@ -123,6 +123,14 @@ class HelloWorldView(APIView):
         return Response({'message': 'HOLA MUNDO'}, status=status.HTTP_200_OK)
 
 
+class HealthView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from django.conf import settings
+        return Response({'status': 'ok', 'version': settings.APP_VERSION})
+
+
 class ProfileView(APIView):
     """
     Devuelve los datos del usuario autenticado.

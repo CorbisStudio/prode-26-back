@@ -195,3 +195,5 @@ PRODE_STAGE_MULTIPLIERS = {
     'THIRD_PLACE': 4,
     'FINAL': 5,
 }
+
+APP_VERSION = os.getenv('APP_VERSION', '1.0.0')

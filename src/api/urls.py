@@ -14,6 +14,7 @@ from .views import (
     ProfileView,
     RegisterView,
     ActivateView,
+    AdminSettingsView,
 )
 
 schema_view = get_schema_view(
@@ -51,6 +52,10 @@ urlpatterns = [
     # GET  /api/profile/  → datos del usuario logueado
     path('', HelloWorldView.as_view(), name='hello_world'),
     path('profile/', ProfileView.as_view(), name='profile'),
+
+    # ── Admin: configuración del servidor ─────────────────────────────────────
+    # POST /api/admin/settings/  → variables de entorno (solo is_staff)
+    path('admin/settings/', AdminSettingsView.as_view(), name='admin_settings'),
 
     # ── Mundial: partidos ───────────────────────────────────────────────────────
     path('', include('matches.urls')),

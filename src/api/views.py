@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -255,6 +255,44 @@ class ActivateSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         return value.strip().lower()
+
+
+class AdminSettingsView(APIView):
+    """
+    POST /api/admin/settings/
+
+    Devuelve las variables de configuración sensibles del servidor.
+    Requiere token JWT de un usuario con is_staff=True.
+    """
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    @swagger_auto_schema(
+        operation_description="Retorna variables de entorno del servidor. Solo admins.",
+        responses={
+            200: openapi.Response(
+                description="Variables de configuración",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'EMAIL_HOST':          openapi.Schema(type=openapi.TYPE_STRING),
+                        'EMAIL_HOST_USER':     openapi.Schema(type=openapi.TYPE_STRING),
+                        'EMAIL_HOST_PASSWORD': openapi.Schema(type=openapi.TYPE_STRING),
+                        'DEFAULT_FROM_EMAIL':  openapi.Schema(type=openapi.TYPE_STRING),
+                        'FOOTBALL_DATA_TOKEN': openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            403: openapi.Response(description="Forbidden — se requiere rol admin"),
+        },
+    )
+    def post(self, request):
+        return Response({
+            'EMAIL_HOST':          getattr(settings, 'EMAIL_HOST', None),
+            'EMAIL_HOST_USER':     getattr(settings, 'EMAIL_HOST_USER', None),
+            'EMAIL_HOST_PASSWORD': getattr(settings, 'EMAIL_HOST_PASSWORD', None),
+            'DEFAULT_FROM_EMAIL':  getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+            'FOOTBALL_DATA_TOKEN': getattr(settings, 'FOOTBALL_DATA_TOKEN', None),
+        })
 
 
 class ActivateView(APIView):

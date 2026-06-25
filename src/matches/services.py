@@ -24,9 +24,11 @@ class FootballDataClient:
     """Cliente para football-data.org (v4)."""
 
     def __init__(self, token=None, base_url=None, competition=None, timeout=20):
-        self.token = token or settings.FOOTBALL_DATA_TOKEN
-        self.base_url = (base_url or settings.FOOTBALL_DATA_BASE_URL).rstrip('/') + '/'
-        self.competition = competition or settings.WORLD_CUP_COMPETITION_CODE
+        from core.models import SiteSetting
+        cfg = SiteSetting.get()
+        self.token = token or cfg.football_data_token or settings.FOOTBALL_DATA_TOKEN
+        self.base_url = (base_url or cfg.football_data_base_url or settings.FOOTBALL_DATA_BASE_URL).rstrip('/') + '/'
+        self.competition = competition or cfg.world_cup_competition_code or settings.WORLD_CUP_COMPETITION_CODE
         self.timeout = timeout
 
     def _get(self, path):

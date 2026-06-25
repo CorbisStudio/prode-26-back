@@ -2,7 +2,7 @@ from email.mime.image import MIMEImage
 from smtplib import SMTPException
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -31,7 +31,10 @@ class EmailProde:
         self.__recipient_list = recipient_list
         self.__context = context
         self.__template = template
-        self.__from_email = from_email or settings.DEFAULT_FROM_EMAIL
+        from core.models import SiteSetting
+        cfg = SiteSetting.get()
+        self.__from_email = from_email or cfg.default_from_email or settings.DEFAULT_FROM_EMAIL
+        self.__site_cfg = cfg
         self.__inline_images = inline_images or {}
 
     def __get_template_path(self) -> str:
@@ -45,11 +48,26 @@ class EmailProde:
         )
         txt_rendered = strip_tags(html_rendered)
 
+        cfg = self.__site_cfg
+        if cfg.email_host:
+            connection = get_connection(
+                backend=cfg.email_backend,
+                host=cfg.email_host,
+                port=cfg.email_port,
+                username=cfg.email_host_user,
+                password=cfg.email_host_password,
+                use_tls=cfg.email_use_tls,
+                use_ssl=cfg.email_use_ssl,
+            )
+        else:
+            connection = get_connection()
+
         msg = EmailMultiAlternatives(
             subject=self.__subject,
             body=txt_rendered,
             from_email=self.__from_email,
             to=self.__recipient_list,
+            connection=connection,
         )
         msg.attach_alternative(html_rendered, 'text/html')
 

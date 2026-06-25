@@ -6,9 +6,31 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.shortcuts import render
 
-from .models import UserProfile
+from .models import SiteSetting, UserProfile
 
 User = get_user_model()
+
+
+@admin.register(SiteSetting)
+class SiteSettingAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Email', {
+            'fields': (
+                'email_backend', 'email_host', 'email_port',
+                'email_use_tls', 'email_use_ssl',
+                'email_host_user', 'email_host_password', 'default_from_email',
+            ),
+        }),
+        ('Football Data API', {
+            'fields': ('football_data_token', 'football_data_base_url', 'world_cup_competition_code'),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return not SiteSetting.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(UserProfile)

@@ -12,11 +12,6 @@ services:
         volumes:
             - prode_data:/var/lib/postgresql/data
 
-    redis:
-        image: redis:7-alpine
-        ports:
-            - "6379:6379"
-
     web:
         build: .
         volumes:
@@ -29,29 +24,6 @@ services:
         tty: true
         depends_on:
             - db
-            - redis
-
-    celery_worker:
-        build: .
-        command: celery -A prode worker -l info
-        volumes:
-            - ./src:/app
-        env_file:
-            - ./.env
-        depends_on:
-            - db
-            - redis
-
-    celery_beat:
-        build: .
-        command: celery -A prode beat -l info
-        volumes:
-            - ./src:/app
-        env_file:
-            - ./.env
-        depends_on:
-            - db
-            - redis
 
 volumes:
     prode_data:

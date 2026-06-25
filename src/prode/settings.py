@@ -196,4 +196,4 @@ PRODE_STAGE_MULTIPLIERS = {
     'FINAL': 5,
 }
 
-APP_VERSION = os.getenv('APP_VERSION', '1.0.0')
+APP_VERSION = os.getenv('APP_VERSION', '1.0.1')

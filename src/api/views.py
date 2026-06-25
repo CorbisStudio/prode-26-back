@@ -214,7 +214,7 @@ class RegisterView(APIView):
             # Cuenta pendiente de activar → regenera el código y reenvía el mail.
             profile, _ = UserProfile.objects.get_or_create(user=existing)
             code = _set_activation_code(profile)
-            send_activation_email.delay(existing.id, code)
+            send_activation_email(existing.id, code)
             return Response(
                 {'detail': 'Esa cuenta ya estaba registrada. Te reenviamos un código nuevo.'},
                 status=status.HTTP_200_OK,
@@ -232,7 +232,7 @@ class RegisterView(APIView):
             profile, _ = UserProfile.objects.get_or_create(user=user)
             code = _set_activation_code(profile)
 
-        send_activation_email.delay(user.id, code)
+        send_activation_email(user.id, code)
 
         return Response(
             {'detail': 'Registro exitoso. Te enviamos un código a tu correo para activar la cuenta.'},

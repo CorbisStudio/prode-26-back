@@ -22,7 +22,7 @@ ingresa en la app → queda logueado.
 5. Front  ──POST /api/activate/ { email, code }──▶  backend:
       • valida el código (no vencido, intentos disponibles, coincide)
       • is_active = True
-      • suma al usuario al grupo EXTERNAL
+      • suma al usuario al grupo CLIENT
       • devuelve  { access, refresh, user }   (queda logueado)
 6. Front guarda los tokens y entra a la app
 ```
@@ -132,9 +132,9 @@ Devuelve el objeto `user` del usuario logueado.
 - **Lifetimes:** `access` = 6 hs · `refresh` = 1 día. Al expirar el access, usar
   `/api/token/refresh/`.
 - El `access` trae un claim **`groups`** con los grupos del usuario. Para un registrado
-  por este flujo incluirá `"EXTERNAL"`:
+  por este flujo incluirá `"CLIENT"`:
   ```json
-  { "user_id": "472", "groups": ["EXTERNAL"], "exp": ..., "token_type": "access" }
+  { "user_id": "472", "groups": ["CLIENT"], "exp": ..., "token_type": "access" }
   ```
 
 ---
@@ -207,7 +207,7 @@ async function getProfile() {
 
 ## Notas
 
-- El registrado entra al sistema en el grupo **EXTERNAL** y como participante del ranking.
+- El registrado entra al sistema en el grupo **CLIENT** y como participante del ranking.
 - El `username` se setea igual al email.
 - CORS ya permite cualquier origen en el back, así que el front lo consume sin fricción.
 - **Mail:** el envío en prod ya está operativo (remitente `prode.corbis@gmail.com`). El mail

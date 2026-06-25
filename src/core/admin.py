@@ -20,9 +20,13 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 class GroupActionForm(forms.Form):
     """Form de la página intermedia del action de grupos."""
-    group = forms.ModelChoiceField(queryset=Group.objects.all(), label='Grupo')
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label='Grupos',
+    )
     operation = forms.ChoiceField(
-        choices=[('add', 'Agregar al grupo'), ('remove', 'Quitar del grupo')],
+        choices=[('add', 'Agregar a los grupos'), ('remove', 'Quitar de los grupos')],
         widget=forms.RadioSelect, initial='add', label='Operación',
     )
 
@@ -58,20 +62,21 @@ class CustomUserAdmin(UserAdmin):
 
     @admin.action(description='Asignar / quitar grupo…')
     def manage_group(self, request, queryset):
-        # Página intermedia: elegir grupo + operación (agregar/quitar) y aplicar.
+        # Página intermedia: elegir uno o varios grupos + operación y aplicar.
         if 'apply' in request.POST:
             form = GroupActionForm(request.POST)
             if form.is_valid():
-                group = form.cleaned_data['group']
+                groups = form.cleaned_data['groups']
                 op = form.cleaned_data['operation']
                 for user in queryset:
                     if op == 'add':
-                        user.groups.add(group)
+                        user.groups.add(*groups)
                     else:
-                        user.groups.remove(group)
+                        user.groups.remove(*groups)
                 verb = 'agregado(s) a' if op == 'add' else 'quitado(s) de'
+                nombres = ', '.join(g.name for g in groups)
                 self.message_user(
-                    request, f'{queryset.count()} usuario(s) {verb} el grupo "{group.name}".'
+                    request, f'{queryset.count()} usuario(s) {verb} los grupos: {nombres}.'
                 )
                 return None  # vuelve al changelist
         else:

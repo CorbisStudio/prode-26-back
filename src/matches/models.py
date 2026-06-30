@@ -35,6 +35,11 @@ class Match(models.Model):
         AWAY = 'AWAY_TEAM', 'Away team'
         DRAW = 'DRAW', 'Draw'
 
+    class Duration(models.TextChoices):
+        REGULAR = 'REGULAR', 'Regular'
+        EXTRA_TIME = 'EXTRA_TIME', 'Extra time'
+        PENALTY_SHOOTOUT = 'PENALTY_SHOOTOUT', 'Penalty shootout'
+
     external_id = models.IntegerField(unique=True, null=True, blank=True)
 
     stage = models.CharField(max_length=40, blank=True, null=True)   # GROUP_STAGE, LAST_16, FINAL...
@@ -54,6 +59,22 @@ class Match(models.Model):
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
     winner = models.CharField(max_length=20, choices=Winner.choices, blank=True, null=True)
+
+    # Cómo se definió el partido. En eliminatorias puede ir a alargue o penales.
+    duration = models.CharField(
+        max_length=20, choices=Duration.choices, default=Duration.REGULAR
+    )
+    # Resultado de la tanda de penales (sólo si duration == PENALTY_SHOOTOUT).
+    penalties_home = models.IntegerField(null=True, blank=True)
+    penalties_away = models.IntegerField(null=True, blank=True)
+
+    # Desgloses del marcador tal como los entrega el proveedor (score.*).
+    half_time_home = models.IntegerField(null=True, blank=True)
+    half_time_away = models.IntegerField(null=True, blank=True)
+    regular_time_home = models.IntegerField(null=True, blank=True)
+    regular_time_away = models.IntegerField(null=True, blank=True)
+    extra_time_home = models.IntegerField(null=True, blank=True)
+    extra_time_away = models.IntegerField(null=True, blank=True)
 
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)

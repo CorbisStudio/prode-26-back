@@ -96,6 +96,10 @@ def _apply_match_fields(match, m):
     """Vuelca los campos del JSON del proveedor en la instancia Match (sin guardar)."""
     score = m.get('score') or {}
     full_time = score.get('fullTime') or {}
+    penalties = score.get('penalties') or {}
+    half_time = score.get('halfTime') or {}
+    regular_time = score.get('regularTime') or {}
+    extra_time = score.get('extraTime') or {}
 
     match.stage = m.get('stage')
     match.group = _group_label(m.get('group'))
@@ -105,6 +109,15 @@ def _apply_match_fields(match, m):
     match.home_score = full_time.get('home')
     match.away_score = full_time.get('away')
     match.winner = score.get('winner')
+    match.duration = score.get('duration') or Match.Duration.REGULAR
+    match.penalties_home = penalties.get('home')
+    match.penalties_away = penalties.get('away')
+    match.half_time_home = half_time.get('home')
+    match.half_time_away = half_time.get('away')
+    match.regular_time_home = regular_time.get('home')
+    match.regular_time_away = regular_time.get('away')
+    match.extra_time_home = extra_time.get('home')
+    match.extra_time_away = extra_time.get('away')
 
 
 def import_matches(client=None):
@@ -144,6 +157,61 @@ def assign_team_groups():
                 updated += 1
     logger.info('Team groups: %s equipos actualizados', updated)
     return updated
+
+
+def sync_elimination_rounds(client=None):
+    """
+    Completa los cruces de eliminatorias con sus equipos ya definidos.
+
+    Pensado para correr MANUALMENTE cada vez que termina una fase de
+    eliminatorias: el proveedor recién entonces publica quiénes juegan la
+    ronda siguiente. A diferencia de `update_results` (que sólo refresca
+    resultados de partidos ya jugados y saltea los programados), esto asigna
+    los equipos aunque el partido todavía esté en estado TIMED/SCHEDULED.
+
+    No toca la fase de grupos. Devuelve (actualizados, detalles).
+    """
+    client = client or FootballDataClient()
+    by_external = {m.get('id'): m for m in client.get_matches()}
+
+    updated = 0
+    details = []
+    qs = Match.objects.exclude(stage='GROUP_STAGE').select_related('home_team', 'away_team')
+    for match in qs:
+        m = by_external.get(match.external_id)
+        if not m:
+            continue
+
+        home = _team_by_external_id(m.get('homeTeam'))
+        away = _team_by_external_id(m.get('awayTeam'))
+
+        changed_fields = []
+        if home and match.home_team_id != home.id:
+            match.home_team = home
+            changed_fields.append('home_team')
+        if away and match.away_team_id != away.id:
+            match.away_team = away
+            changed_fields.append('away_team')
+
+        # Refrescamos fecha/horario por si el cruce se reprograma al definirse.
+        new_date = parse_datetime(m['utcDate']) if m.get('utcDate') else None
+        if new_date and match.utc_date != new_date:
+            match.utc_date = new_date
+            changed_fields.append('utc_date')
+
+        if changed_fields:
+            match.save(update_fields=changed_fields + ['update_date'])
+            updated += 1
+            details.append({
+                'match_id': match.id,
+                'stage': match.stage,
+                'home': match.home_team.name if match.home_team else 'TBD',
+                'away': match.away_team.name if match.away_team else 'TBD',
+                'fields': changed_fields,
+            })
+
+    logger.info('Sync elimination rounds: %s partidos de eliminatorias actualizados', updated)
+    return updated, details
 
 
 def update_results(client=None):

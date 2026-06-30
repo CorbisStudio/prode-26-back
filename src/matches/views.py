@@ -34,6 +34,29 @@ class MatchDetailView(RetrieveAPIView):
     queryset = Match.objects.select_related('home_team', 'away_team').all()
 
 
+class SyncEliminationRoundsView(APIView):
+    """
+    GET /api/matches/sync-elimination-rounds/?token=<FOOTBALL_DATA_TOKEN>
+    Completa los cruces de eliminatorias con los equipos ya definidos por el
+    proveedor. Correr manualmente cada vez que termina una fase (16avos,
+    octavos, cuartos...). El token es opcional: si no se pasa usa el configurado.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        try:
+            from .services import FootballDataClient, sync_elimination_rounds
+
+            token = request.query_params.get('token')
+            client = FootballDataClient(token=token) if token else FootballDataClient()
+
+            updated, details = sync_elimination_rounds(client=client)
+
+            return Response({'status': 'ok', 'updated': updated, 'matches': details})
+        except Exception as exc:
+            return Response({'status': 'error', 'detail': str(exc)}, status=500)
+
+
 class UpdateMatchResultsView(APIView):
     """
     GET /api/matches/update/?token=<FOOTBALL_DATA_TOKEN>

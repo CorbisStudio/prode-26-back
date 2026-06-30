@@ -19,4 +19,8 @@ class MatchSerializer(serializers.ModelSerializer):
             'id', 'stage', 'group', 'matchday',
             'home_team', 'away_team', 'utc_date', 'status',
             'home_score', 'away_score', 'winner',
+            'duration', 'penalties_home', 'penalties_away',
+            'half_time_home', 'half_time_away',
+            'regular_time_home', 'regular_time_away',
+            'extra_time_home', 'extra_time_away',
         ]

@@ -2,10 +2,20 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prode-srv-back
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-west-2:714022400124:certificate/15ebd3c0-e6cc-467a-acd2-2b714cb4826f"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
 spec:
   type: LoadBalancer
   ports:
-    - port: 80
-      targetPort: 8000
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 8000
+    protocol: TCP
   selector:
     role: prode-back

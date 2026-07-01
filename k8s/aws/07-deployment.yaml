@@ -27,13 +27,6 @@ spec:
           volumeMounts:
             - name: static-files
               mountPath: /app/staticfiles
-          resources:
-            requests:
-              memory: "192Mi"
-              cpu: "150m"
-            limits:
-              memory: "512Mi"
-              cpu: "600m"
       volumes:
         - name: static-files
           persistentVolumeClaim:
